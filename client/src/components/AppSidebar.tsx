@@ -8,7 +8,7 @@ import {
   Activity,
   LogIn
 } from "lucide-react"
-import { NavLink, useLocation } from "react-router-dom"
+import { Link, useLocation } from "wouter"
 
 import {
   Sidebar,
@@ -67,14 +67,13 @@ const authItems = [
 
 export function AppSidebar() {
   const { state } = useSidebar()
-  const location = useLocation()
-  const currentPath = location.pathname
+  const [location] = useLocation()
 
-  const isActive = (path: string) => currentPath === path || (path === "/dashboard" && currentPath === "/")
+  const isActive = (path: string) => location === path || (path === "/dashboard" && location === "/")
   const isExpanded = navigationItems.some((i) => isActive(i.url))
 
-  const getNavClassName = ({ isActive }: { isActive: boolean }) =>
-    isActive 
+  const getNavClassName = (path: string) =>
+    isActive(path)
       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium border-r-2 border-sidebar-primary" 
       : "hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
 
@@ -113,10 +112,9 @@ export function AppSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      end 
-                      className={getNavClassName}
+                    <Link 
+                      href={item.url} 
+                      className={`${getNavClassName(item.url)} flex items-center gap-2 w-full p-2 rounded-md transition-colors`}
                     >
                       <item.icon className="w-4 h-4" />
                       {state !== "collapsed" && (
@@ -125,7 +123,7 @@ export function AppSidebar() {
                           <span className="text-xs opacity-60">{item.description}</span>
                         </div>
                       )}
-                    </NavLink>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -144,9 +142,9 @@ export function AppSidebar() {
               {authItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName}
+                    <Link 
+                      href={item.url} 
+                      className={`${getNavClassName(item.url)} flex items-center gap-2 w-full p-2 rounded-md transition-colors`}
                     >
                       <item.icon className="w-4 h-4" />
                       {state !== "collapsed" && (
@@ -155,7 +153,7 @@ export function AppSidebar() {
                           <span className="text-xs opacity-60">{item.description}</span>
                         </div>
                       )}
-                    </NavLink>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
