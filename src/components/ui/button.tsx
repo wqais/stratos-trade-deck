@@ -18,12 +18,17 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Trading specific variants
+        buy: "bg-buy text-buy-foreground hover:bg-buy-hover font-semibold shadow-sm",
+        sell: "bg-sell text-sell-foreground hover:bg-sell-hover font-semibold shadow-sm",
+        trading: "bg-accent text-accent-foreground hover:bg-accent/80 border border-border",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        xs: "h-8 rounded px-2 text-xs",
       },
     },
     defaultVariants: {

@@ -61,6 +61,28 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Trading specific colors
+				buy: {
+					DEFAULT: 'hsl(var(--buy))',
+					foreground: 'hsl(var(--buy-foreground))',
+					hover: 'hsl(var(--buy-hover))'
+				},
+				sell: {
+					DEFAULT: 'hsl(var(--sell))',
+					foreground: 'hsl(var(--sell-foreground))',
+					hover: 'hsl(var(--sell-hover))'
+				},
+				profit: 'hsl(var(--profit))',
+				loss: 'hsl(var(--loss))',
+				neutral: 'hsl(var(--neutral))',
+				// Chart colors
+				chart: {
+					1: 'hsl(var(--chart-1))',
+					2: 'hsl(var(--chart-2))',
+					3: 'hsl(var(--chart-3))',
+					4: 'hsl(var(--chart-4))',
+					5: 'hsl(var(--chart-5))'
 				}
 			},
 			borderRadius: {
