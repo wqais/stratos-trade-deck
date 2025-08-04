@@ -2,67 +2,32 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { TrendingUp, TrendingDown, DollarSign, BarChart3, ArrowUpRight, ArrowDownRight, Eye } from "lucide-react"
-
-// Mock data for demonstration
-const portfolioKPIs = {
-  totalValue: 125340.50,
-  dayChange: 1240.30,
-  dayChangePercent: 0.99,
-  totalReturn: 8450.20,
-  totalReturnPercent: 7.24
-}
-
-const marketData = [
-  { symbol: "AAPL", price: 174.50, change: 2.30, changePercent: 1.34, volume: "45.2M" },
-  { symbol: "GOOGL", price: 2891.20, change: -12.80, changePercent: -0.44, volume: "28.1M" },
-  { symbol: "MSFT", price: 348.10, change: 4.60, changePercent: 1.34, volume: "32.5M" },
-  { symbol: "TSLA", price: 248.50, change: -5.20, changePercent: -2.05, volume: "67.8M" },
-  { symbol: "NVDA", price: 445.90, change: 8.70, changePercent: 1.99, volume: "45.3M" },
-]
-
-const newsData = [
-  {
-    id: 1,
-    headline: "Federal Reserve Holds Interest Rates Steady at 5.25-5.50%",
-    summary: "The Federal Open Market Committee decided to maintain the federal funds rate at its current level...",
-    time: "2 hours ago",
-    category: "Economic"
-  },
-  {
-    id: 2,
-    headline: "Tech Stocks Rally as AI Spending Continues to Surge",
-    summary: "Major technology companies see increased investment in artificial intelligence infrastructure...",
-    time: "4 hours ago",
-    category: "Technology"
-  },
-  {
-    id: 3,
-    headline: "Oil Prices Rise 3% on Middle East Supply Concerns",
-    summary: "Crude oil futures climbed sharply following reports of potential supply disruptions...",
-    time: "6 hours ago",
-    category: "Energy"
-  },
-]
-
-const recentOrders = [
-  { symbol: "AAPL", type: "BUY", quantity: 100, price: 174.20, status: "Filled", time: "09:45 AM" },
-  { symbol: "MSFT", type: "SELL", quantity: 50, price: 347.80, status: "Filled", time: "10:32 AM" },
-  { symbol: "GOOGL", type: "BUY", quantity: 25, price: 2890.50, status: "Pending", time: "11:15 AM" },
-]
+import { useAuth } from "@/hooks/useAuth"
+import { usePortfolio, useOrders } from "@/hooks/useTrading"
+import { useMarketOverview, useMarketNews } from "@/hooks/useMarketData"
 
 export default function Dashboard() {
+  const { user, logout } = useAuth();
+  const { data: portfolio } = usePortfolio();
+  const { data: orders } = useOrders();
+  const { data: marketData } = useMarketOverview();
+  const { data: news } = useMarketNews();
+
+  const portfolioValue = portfolio ? parseFloat(portfolio.total_value) : 0;
+  const cashBalance = portfolio ? parseFloat(portfolio.cash_balance) : 0;
+  const investedValue = portfolioValue - cashBalance;
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Trading Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's your portfolio overview.</p>
+          <p className="text-muted-foreground">Welcome back, {user?.username}! Here's your portfolio overview.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Eye className="w-4 h-4 mr-2" />
-            View Details
+          <Button variant="outline" size="sm" onClick={() => logout()}>
+            Sign Out
           </Button>
           <Button variant="default" size="sm">
             <TrendingUp className="w-4 h-4 mr-2" />
@@ -80,16 +45,12 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              ${portfolioKPIs.totalValue.toLocaleString()}
+              ${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="flex items-center text-sm">
-              {portfolioKPIs.dayChange > 0 ? (
-                <ArrowUpRight className="w-4 h-4 text-profit mr-1" />
-              ) : (
-                <ArrowDownRight className="w-4 h-4 text-loss mr-1" />
-              )}
-              <span className={portfolioKPIs.dayChange > 0 ? "text-profit" : "text-loss"}>
-                ${Math.abs(portfolioKPIs.dayChange).toLocaleString()} ({portfolioKPIs.dayChangePercent}%)
+              <ArrowUpRight className="w-4 h-4 text-profit mr-1" />
+              <span className="text-profit">
+                $0.00 (0.00%)
               </span>
               <span className="text-muted-foreground ml-1">today</span>
             </div>
@@ -103,14 +64,12 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">
-              ${portfolioKPIs.totalReturn.toLocaleString()}
+              ${investedValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
             <div className="flex items-center text-sm">
-              <ArrowUpRight className="w-4 h-4 text-profit mr-1" />
-              <span className="text-profit">
-                +{portfolioKPIs.totalReturnPercent}%
+              <span className="text-muted-foreground">
+                Cash: ${cashBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className="text-muted-foreground ml-1">all time</span>
             </div>
           </CardContent>
         </Card>
@@ -121,8 +80,10 @@ export default function Dashboard() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-foreground">12</div>
-            <p className="text-xs text-muted-foreground">3 pending execution</p>
+            <div className="text-2xl font-bold text-foreground">{orders?.length || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {orders?.filter((o: any) => o.status === 'PENDING').length || 0} pending execution
+            </p>
           </CardContent>
         </Card>
 
@@ -147,29 +108,30 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {marketData.map((stock) => (
+              {marketData && marketData.length > 0 ? marketData.map((stock: any) => (
                 <div key={stock.symbol} className="flex items-center justify-between p-3 rounded-lg bg-accent/50 hover:bg-accent transition-colors">
                   <div className="flex items-center gap-3">
                     <div className="font-semibold text-foreground">{stock.symbol}</div>
-                    <div className="text-sm text-muted-foreground">Vol: {stock.volume}</div>
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-lg font-semibold text-foreground">
-                      ${stock.price.toFixed(2)}
+                      ${stock.price?.toFixed(2) || '0.00'}
                     </div>
-                    <div className={`flex items-center gap-1 ${stock.change > 0 ? 'text-profit' : 'text-loss'}`}>
-                      {stock.change > 0 ? (
+                    <div className={`flex items-center gap-1 ${(stock.change || 0) >= 0 ? 'text-profit' : 'text-loss'}`}>
+                      {(stock.change || 0) >= 0 ? (
                         <ArrowUpRight className="w-4 h-4" />
                       ) : (
                         <ArrowDownRight className="w-4 h-4" />
                       )}
                       <span className="text-sm font-medium">
-                        {stock.change > 0 ? '+' : ''}{stock.change.toFixed(2)} ({stock.changePercent}%)
+                        {(stock.change || 0) >= 0 ? '+' : ''}{(stock.change || 0).toFixed(2)} ({(stock.changePercent || 0).toFixed(2)}%)
                       </span>
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <p className="text-sm text-muted-foreground">Loading market data...</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -182,22 +144,28 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {newsData.map((news) => (
-                <div key={news.id} className="border-b border-border pb-3 last:border-b-0 last:pb-0">
+              {news && news.length > 0 ? news.slice(0, 5).map((item: any, index: number) => (
+                <div key={index} className="border-b border-border pb-3 last:border-b-0 last:pb-0">
                   <div className="flex items-start gap-2 mb-2">
                     <Badge variant="secondary" className="text-xs">
-                      {news.category}
+                      News
                     </Badge>
-                    <span className="text-xs text-muted-foreground">{news.time}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(item.time_published).toLocaleDateString()}
+                    </span>
                   </div>
                   <h4 className="text-sm font-semibold text-foreground leading-tight mb-1">
-                    {news.headline}
+                    {item.title}
                   </h4>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {news.summary}
-                  </p>
+                  {item.summary && (
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {item.summary}
+                    </p>
+                  )}
                 </div>
-              ))}
+              )) : (
+                <p className="text-sm text-muted-foreground">Loading market news...</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -211,25 +179,32 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {recentOrders.map((order, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-accent/30">
+            {orders && orders.length > 0 ? orders.slice(0, 5).map((order: any) => (
+              <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-accent/30">
                 <div className="flex items-center gap-4">
-                  <Badge variant={order.type === 'BUY' ? 'default' : 'secondary'} className={order.type === 'BUY' ? 'bg-buy text-buy-foreground' : 'bg-sell text-sell-foreground'}>
-                    {order.type}
+                  <Badge variant={order.order_type === 'BUY' ? 'default' : 'secondary'} className={order.order_type === 'BUY' ? 'bg-buy text-buy-foreground' : 'bg-sell text-sell-foreground'}>
+                    {order.order_type}
                   </Badge>
                   <div>
                     <div className="font-semibold text-foreground">{order.symbol}</div>
-                    <div className="text-sm text-muted-foreground">{order.quantity} shares @ ${order.price}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {order.quantity} shares @ {order.price_type}
+                      {order.price && ` $${parseFloat(order.price).toFixed(2)}`}
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <Badge variant={order.status === 'Filled' ? 'default' : 'secondary'}>
+                  <Badge variant={order.status === 'FILLED' ? 'default' : 'secondary'}>
                     {order.status}
                   </Badge>
-                  <div className="text-sm text-muted-foreground mt-1">{order.time}</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {new Date(order.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <p className="text-sm text-muted-foreground">No recent orders</p>
+            )}
           </div>
         </CardContent>
       </Card>
