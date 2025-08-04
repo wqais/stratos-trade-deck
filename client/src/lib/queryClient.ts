@@ -28,10 +28,10 @@ export async function apiRequest(url: string, options: RequestInit = {}) {
   return response.json();
 }
 
-// Set up default query function
-queryClient.setQueryDefaults(['default'], {
+// Set up default query function for most endpoints
+queryClient.setQueryDefaults(['api'], {
   queryFn: async ({ queryKey }) => {
-    const url = queryKey[0] as string;
+    const url = queryKey[1] as string; // Second element since first is 'api'
     return apiRequest(url);
   },
 });

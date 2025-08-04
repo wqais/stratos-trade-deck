@@ -3,21 +3,21 @@ import { MarketData, NewsItem } from '@shared/schema';
 
 export function useMarketOverview() {
   return useQuery({
-    queryKey: ['/api/market/overview'],
+    queryKey: ['api', '/api/market/overview'],
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 }
 
 export function useSymbols() {
   return useQuery({
-    queryKey: ['/api/market/symbols'],
+    queryKey: ['api', '/api/market/symbols'],
     staleTime: Infinity, // Symbols don't change often
   });
 }
 
 export function useMarketPrice(symbol: string) {
   return useQuery({
-    queryKey: ['/api/market/' + symbol + '/price'],
+    queryKey: ['api', '/api/market/' + symbol + '/price'],
     enabled: !!symbol,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
@@ -25,7 +25,7 @@ export function useMarketPrice(symbol: string) {
 
 export function useMarketHistory(symbol: string, days?: number) {
   return useQuery({
-    queryKey: ['/api/market/' + symbol + '/history', { days }],
+    queryKey: ['api', '/api/market/' + symbol + '/history', { days }],
     enabled: !!symbol,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
@@ -33,7 +33,7 @@ export function useMarketHistory(symbol: string, days?: number) {
 
 export function useMarketNews(date?: string) {
   return useQuery({
-    queryKey: ['/api/market/news', { date }],
+    queryKey: ['api', '/api/market/news', { date }],
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
 }

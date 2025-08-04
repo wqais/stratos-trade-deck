@@ -144,6 +144,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Market data routes
+  app.get('/api/market/overview', (req, res) => {
+    try {
+      const symbols = storage.getSupportedSymbols();
+      const overview = symbols.map(symbol => {
+        const price = storage.getCurrentPrice(symbol);
+        return {
+          symbol,
+          price,
+          change: 0, // Would calculate from historical data
+          changePercent: 0
+        };
+      });
+      res.json(overview);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get('/api/market/symbols', (req, res) => {
     try {
       const symbols = storage.getSupportedSymbols();
@@ -190,22 +208,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Market overview route
-  app.get('/api/market/overview', (req, res) => {
-    try {
-      const symbols = storage.getSupportedSymbols();
-      const overview = symbols.map(symbol => ({
-        symbol,
-        price: storage.getCurrentPrice(symbol),
-        change: 0, // Could calculate from historical data
-        changePercent: 0
-      }));
-      
-      res.json(overview);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   const httpServer = createServer(app);
   return httpServer;

@@ -4,19 +4,19 @@ import { InsertOrder } from '@shared/schema';
 
 export function usePortfolio() {
   return useQuery({
-    queryKey: ['/api/portfolio'],
+    queryKey: ['api', '/api/portfolio'],
   });
 }
 
 export function useHoldings() {
   return useQuery({
-    queryKey: ['/api/portfolio/holdings'],
+    queryKey: ['api', '/api/portfolio/holdings'],
   });
 }
 
 export function useOrders(status?: string) {
   return useQuery({
-    queryKey: ['/api/orders', { status }],
+    queryKey: ['api', '/api/orders', { status }],
   });
 }
 
@@ -29,9 +29,9 @@ export function usePlaceOrder() {
       }),
     onSuccess: () => {
       // Invalidate related queries
-      queryClient.invalidateQueries({ queryKey: ['/api/portfolio'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/portfolio/holdings'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      queryClient.invalidateQueries({ queryKey: ['api', '/api/portfolio'] });
+      queryClient.invalidateQueries({ queryKey: ['api', '/api/portfolio/holdings'] });
+      queryClient.invalidateQueries({ queryKey: ['api', '/api/orders'] });
     },
   });
 }
@@ -43,7 +43,7 @@ export function useCancelOrder() {
         method: 'POST',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      queryClient.invalidateQueries({ queryKey: ['api', '/api/orders'] });
     },
   });
 }
